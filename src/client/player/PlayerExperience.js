@@ -27,11 +27,15 @@ class PlayerExperience extends soundworks.Experience {
     this.sharedParams = this.require('shared-params');
 
     this.touchId = null;
+    this.fadeFactor = 0;
 
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
     this.onIntensity = this.onIntensity.bind(this);
+    this.updateThickness = this.updateThickness.bind(this);
+    this.updateFade = this.updateFade.bind(this);
+    this.onClear = this.onClear.bind(this);
   }
 
   start() {
@@ -45,11 +49,6 @@ class PlayerExperience extends soundworks.Experience {
     this.show().then(() => {
       this.renderer = new TraceRenderer();
       this.view.addRenderer(this.renderer);
-      this.view.setPreRender(function(ctx, dt, canvasWidth, canvasHeight) {
-        ctx.fillStyle = '#000';
-        ctx.globalAlpha = 0.05;
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-      });
 
       // setup touch listeners
       const surface = new soundworks.TouchSurface(this.view.$el);
@@ -58,6 +57,10 @@ class PlayerExperience extends soundworks.Experience {
       surface.addListener('touchend', this.onTouchEnd);
 
       this.receive('intensity', this.onIntensity);
+
+      this.sharedParams.addParamListener('fade', this.updateFade);
+      this.sharedParams.addParamListener('thickness', this.updateThickness);
+      this.sharedParams.addParamListener('clear', this.onClear);
     });
   }
 
@@ -94,6 +97,32 @@ class PlayerExperience extends soundworks.Experience {
 
   onIntensity(value) {
     this.renderer.setThickness(10 + 40 * value);
+  }
+
+  updateThickness(value) {
+    this.renderer.setThickness(value);
+  }
+
+  updateFade(value) {
+    const isFading = (this.fadeFactor > 0);
+
+    value *= value;    
+
+    if (!isFading && value > 0) {
+      this.view.setPreRender((ctx, dt, canvasWidth, canvasHeight) => {
+        ctx.fillStyle = '#000';
+        ctx.globalAlpha = this.fadeFactor;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      });
+    } else if (!isFading &&  value > 0) {
+      this.view.setPreRender(null);
+    }
+
+    this.fadeFactor = value;
+  }
+
+  onClear() {
+    this.renderer.clear();
   }
 }
 

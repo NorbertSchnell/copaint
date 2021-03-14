@@ -1,8 +1,8 @@
 import { Service, serviceManager, SegmentedView, client } from 'soundworks/client';
-import please from 'pleasejs';
-
 
 const SERVICE_ID = 'service:color-picker';
+
+const numColors = 11;
 
 const template = `
   <div class="section-top flex-middle">
@@ -44,15 +44,9 @@ class ColorPickerView extends SegmentedView {
   onResize(width, height, orientation) {
     super.onResize(width, height, orientation);
 
-    let size;
     const nbrX = 3;
     const nbrY = 4;
-
-    // const bcr = this.$colorWrapper.getBoundingClientRect();
-    // const width = bcr.width;
-    // const height = bcr.height;
-
-    size = Math.min(width / nbrX, height / nbrY);
+    const size = Math.min(width / nbrX, height / nbrY);
 
     this.$circles.forEach(($circle) => {
       $circle.style.width = `${size}px`;
@@ -62,19 +56,19 @@ class ColorPickerView extends SegmentedView {
 
   _updatePalette() {
     const $circles = this.$circles;
-    const colors = please.make_color({
-      colors_returned: 11,
-      format: 'rgb-string',
-      saturation: 0.75,
-      value: 0.75,
-    });
+    let hue = Math.floor(360 * Math.random());
+    const hueIncr = 360 / numColors;
 
-    for (let i = 0; i < 11; i++) {
+    for (let i = 0; i < numColors; i++) {
       const $circle = $circles[i];
-      const color = colors[i];
+      const sat = Math.floor(50 + 50 * Math.random());
+      const lum = Math.floor(25 + 50 * Math.random());
+      const color = `hsl(${hue}, ${sat}%, ${lum}%)`;
 
       $circle.style.backgroundColor = color;
-      $circle.setAttribute('data-rgb', color);
+      $circle.setAttribute('data-color', color);
+
+      hue += hueIncr;
     }
   }
 }
@@ -116,7 +110,7 @@ class ColorPicker extends Service {
     e.preventDefault();
     e.stopPropagation();
 
-    client.color = e.target.getAttribute('data-rgb');
+    client.color = e.target.getAttribute('data-color');
     this.ready();
   }
 }

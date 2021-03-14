@@ -38,6 +38,9 @@ soundworks.server.setClientConfigDefinition((clientType, config, httpRequest) =>
 
 const sharedParams = soundworks.server.require('shared-params');
 sharedParams.addText('numPlayers', '# players', '0');
+sharedParams.addNumber('thickness', 'thickness', 0, 100, 1, 20);
+sharedParams.addNumber('fade', 'fade', 0, 1, 0.01, 0.25);
+sharedParams.addTrigger('clear', 'clear');
 
 const player = new PlayerExperience();
 const display = new DisplayExperience();

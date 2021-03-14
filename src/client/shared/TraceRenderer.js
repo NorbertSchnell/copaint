@@ -15,6 +15,7 @@ class TraceRenderer extends Canvas2dRenderer {
 
     this.opacity = 1;
     this.thickness = 20;
+    this.pendingClear = false;
 
     this.traces = new Map();
   }
@@ -35,7 +36,7 @@ class TraceRenderer extends Canvas2dRenderer {
   updateTrace(id, x, y, color) {
     let trace = this.traces.get(id);
 
-    if(!trace) {
+    if (!trace) {
       trace = {
         x: null,
         y: null,
@@ -60,6 +61,11 @@ class TraceRenderer extends Canvas2dRenderer {
   }
 
   render(ctx) {
+    if (this.pendingClear) {
+      ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+      this.pendingClear = false;
+    }
+
     for (let [id, trace] of this.traces) {
       const x = trace.x * this.canvasWidth;
       const y = trace.y * this.canvasHeight;
@@ -84,7 +90,11 @@ class TraceRenderer extends Canvas2dRenderer {
       trace.lastX = trace.x;
       trace.lastY = trace.y;
     }
-  } 
+  }
+
+  clear() {
+    this.pendingClear = true;
+  }
 }
 
 export default TraceRenderer;

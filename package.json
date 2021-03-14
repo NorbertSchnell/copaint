@@ -21,7 +21,6 @@
   "dependencies": {
     "babel-runtime": "^6.6.1",
     "debug": "^2.6.4",
-    "pleasejs": "^0.4.2",
     "soundworks": "^2.2.5",
     "source-map-support": "^0.4.0"
   },
